@@ -136,9 +136,12 @@ public final class RequestProcessor extends Thread {
 	    	}
 	    	if(requestType.equals("SEND MESSAGE")) {
 	    		try {
-	    			Maybe<Message> message = handleMessage(user.force().getValue().getName(),in);
-	    			user = Server.sendMessage(user.force(),message.force());
-					out.write("MESSAGE SENT");
+	    			final Maybe<Message> message = handleMessage(user.force().getValue().getName(),in);
+	    			if(Server.sendMessage(user.force(),message.force())) {
+	    				out.write("MESSAGE SENT");
+	    			} else {
+	    				out.write("FAILED");
+	    			}
 				} catch (NothingException e) {
 					out.write("FAILED");
 				}

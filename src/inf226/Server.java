@@ -54,9 +54,9 @@ public class Server {
 		return Maybe.just(pass);
 	}
 
-	public static Maybe<Stored<User>> sendMessage(Stored<User> sender, Message message) {
+	public static boolean sendMessage(Stored<User> sender, Message message) {
 		// TODO: Implement the message sending.
-		return Maybe.nothing();
+		return false;
 	}
 	
 	/**
