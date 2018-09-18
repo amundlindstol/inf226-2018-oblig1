@@ -1,5 +1,4 @@
 
-
 # Abstract
 
 This is the first of two mandatory assignments in INF226 autumn 2018.
@@ -87,6 +86,9 @@ and requests are parsed in src/inf226/RequestHandler.java .
     - Allowed user name characters: a-z,A-Z,0-9
     - Allowed password characters: a-z,A-Z,0-9, or .,:;()[]{}<>"'#!$%&/+*?=-_|
 
+You might need to introduce more fields in the User class to store the
+keys derived from the registration process. Make sure to give the new fields
+the final-keyword.
 
 ## Exercise 2: Implement message sending (3 points)
 
