@@ -1,4 +1,3 @@
-
 # Abstract
 
 This is the first of two mandatory assignments in INF226 autumn 2018.
@@ -140,6 +139,10 @@ by using prepared statements:
  - Tables can be made either through JDBC or the command line utility sqlite3.
 
 Make changes so that this is the KeyedStorage used by Server.
+
+Note: To store the messages in a database you can immitate the linked list structure
+by having each message contain a *back-reference to the previous message*, and then store the
+latest message id as a field in the user table.
 
 ## Exercise 5: Using TLS (2 points)
 
