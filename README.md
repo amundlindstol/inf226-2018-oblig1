@@ -1,5 +1,3 @@
-
-
 # Abstract
 
 This is the first of two mandatory assignments in INF226 autumn 2018.
@@ -87,6 +85,9 @@ and requests are parsed in src/inf226/RequestHandler.java .
     - Allowed user name characters: a-z,A-Z,0-9
     - Allowed password characters: a-z,A-Z,0-9, or .,:;()[]{}<>"'#!$%&/+*?=-_|
 
+You might need to introduce more fields in the User class to store the
+keys derived from the registration process. Make sure to give the new fields
+the final-keyword.
 
 ## Exercise 2: Implement message sending (3 points)
 
@@ -138,6 +139,10 @@ by using prepared statements:
  - Tables can be made either through JDBC or the command line utility sqlite3.
 
 Make changes so that this is the KeyedStorage used by Server.
+
+Note: To store the messages in a database you can immitate the linked list structure
+by having each message contain a *back-reference to the previous message*, and then store the
+latest message id as a field in the user table.
 
 ## Exercise 5: Using TLS (2 points)
 
