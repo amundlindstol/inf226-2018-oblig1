@@ -20,6 +20,13 @@ public final class Stored<T> {
 		this.value = value;
 		this.version = new Version(generator.fresh());
 	}
+
+	// Copy constructor
+	public Stored(Version version, T newValue){
+		this.value = newValue;
+		this.version = version;
+	}
+	
 	
 	@Override
 	public boolean equals(Object obj) {

@@ -2,6 +2,7 @@ package inf226;
 
 import java.io.*;
 import java.net.*;
+import java.sql.SQLException;
 import java.util.function.Function;
 
 import inf226.Storage.KeyedStorage;
@@ -68,7 +69,7 @@ public class Server {
 		try {
 			return Maybe.just(storage.refresh(user));
 		} catch (ObjectDeletedException e) { 
-		} catch (IOException e) { 
+		} catch (SQLException e) { 
 		}
 		return Maybe.nothing();
 	}

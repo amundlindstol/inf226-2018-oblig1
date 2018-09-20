@@ -1,6 +1,6 @@
 package inf226.Storage;
 
-import java.io.IOException;
+import java.sql.SQLException;
 
 /**
  * A general purpose storage interface.
@@ -13,10 +13,10 @@ import java.io.IOException;
 public interface Storage<C > {
 
 
-	public Stored<C> save(C value) throws IOException;
-	public Stored<C> refresh(Stored<C> old) throws ObjectDeletedException, IOException;
-	public Stored<C> update(Stored<C> old, C newValue) throws ObjectModifiedException,ObjectDeletedException,IOException;
-	public void delete(Stored<C> old) throws ObjectModifiedException,ObjectDeletedException,IOException;
+	public Stored<C> save(C value) throws SQLException;
+	public Stored<C> refresh(Stored<C> old) throws ObjectDeletedException, SQLException;
+	public Stored<C> update(Stored<C> old, C newValue) throws ObjectModifiedException,ObjectDeletedException,SQLException;
+	public void delete(Stored<C> old) throws ObjectModifiedException,ObjectDeletedException,SQLException;
 	
 	public static class ObjectModifiedException extends Exception {
 		private static final long serialVersionUID = -3013939840856547237L;
