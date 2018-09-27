@@ -136,7 +136,8 @@ by using prepared statements:
 
  - You find the SQLite library in lib/sqlite-jdbc-3.23.1.jar
  - Use JDBC to interface with a SQLite database file which you create.
- - Tables can be made either through JDBC or the command line utility sqlite3.
+ - Tables can be made either through JDBC or the command line utility sqlite3 or a graphical database editor.
+ - To create Stored objects, you will need a map which maps usernames to their most recent Version-objects.
 
 Make changes so that this is the KeyedStorage used by Server.
 
