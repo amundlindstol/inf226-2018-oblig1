@@ -97,7 +97,7 @@ to successfully send and receive messages.
 Implement message sending in client and server:
 
  - In Message, implement the valid-method to sanitize messages:
-    - No control characters (Character.isISOControl())
+    - No control characters (Character.isISOControl()) other than new-line characters
     - No single “.” lines.
  - In Client, the method userMenu should call upon a method you create, called "sendMessage",
    which allows the user to compose and send a message.
