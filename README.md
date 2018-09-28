@@ -18,12 +18,12 @@ Git-commits and can be pulled from the repository.
 
 # Handing in the assignment
 
-Hand in the assignment on mitt.uib.no as a zip file of the code repository.
+Hand in the assignment on mitt.uib.no. If you fork the project on GitLab,
+you can hand in a file with a URL to your repository. Otherwise, it
+is also possible to hand in the repository as a zip file.
 
-Since the repository is a Git-repository, you should commit your progress
-as you write, or at least make a final commit before submission.
-
-Remember to add any new files you create to git.
+Remember that even if you cooperate, everyone should hand
+in their own project, and specify in NOTES.txt who they cooperated with.
 
 # Specification
 
