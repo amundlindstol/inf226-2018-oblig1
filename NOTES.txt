@@ -1,0 +1,8 @@
+
+* using maven
+* < and > is not allowed in password (> == gt; with Jsoup)
+* SecureSSLSocket.java should be split into a separate client and server class to ensure security,
+    but made it in one to speed up the coding process
+* token is only used to automatically login again if server restarts
+    although i haven't setup a database to test this feature
+*

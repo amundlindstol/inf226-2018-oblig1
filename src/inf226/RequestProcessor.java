@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
+import java.util.HashMap;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -20,6 +21,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 public final class RequestProcessor extends Thread {
 	private final BlockingQueue<Request> queue;
+	private HashMap<String, Integer> requestMap = new HashMap<>();
 
 	public RequestProcessor() {
 		queue = new LinkedBlockingQueue<Request>();
@@ -38,6 +40,15 @@ public final class RequestProcessor extends Thread {
 		try {
 			while(true) {
 				final Request request = queue.take();
+
+				System.out.println(String.valueOf(request.client));
+				if (requestMap.containsKey(String.valueOf(request.client))) {
+					requestMap.replace(String.valueOf(request.client), requestMap.get(request.client)+1);
+				} else {
+					requestMap.put(String.valueOf(request.client), 1);
+				}
+
+
 				/*
 				 * TODO: Implement mitigation against a flood
 				 * of requests from a single host by keeping
@@ -137,7 +148,7 @@ public final class RequestProcessor extends Thread {
 	    	if(requestType.equals("SEND MESSAGE")) {
 	    		try {
 	    			final Maybe<Message> message = handleMessage(user.force().getValue().getName(),in);
-	    			if(Server.sendMessage(user.force(),message.force())) {
+	    			if (Server.sendMessage(user.force(), message.force().recipient, message.force().message)) {
 	    				out.write("MESSAGE SENT");
 	    			} else {
 	    				out.write("FAILED");
@@ -178,8 +189,18 @@ public final class RequestProcessor extends Thread {
 		 * @param in Reader to read the message data from.
 		 * @return Message object.
 		 */
-		private static Maybe<Message> handleMessage(String username, BufferedReader in) {
-			// TODO: Handle message input
+		private static Maybe<Message> handleMessage(String username, BufferedReader in) throws IOException {
+			final String recipient = Util.getLine(in);
+			final String message = Util.getLine(in);
+			if (recipient.startsWith("RECIPIENT ") && message.startsWith("MESSAGE ")) {
+				String r = recipient.substring("RECIPIENT ".length(), recipient.length());
+				String m = message.substring("MESSAGE ".length(), message.length());
+				try {
+					return Maybe.just(new Message(username, r, m));
+				} catch (Message.Invalid invalid) {
+					invalid.printStackTrace();
+				}
+			}
 			return Maybe.nothing();
 		}
 
@@ -194,9 +215,8 @@ public final class RequestProcessor extends Thread {
 		    final String lineTwo = Util.getLine(in);
 
 		    if (lineOne.startsWith("USER ") && lineTwo.startsWith("PASS ")) {
-		    	final Maybe<String> username = Maybe.just(lineOne.substring("USER ".length(), lineOne.length()));
-		    	final Maybe<String> password = Server.validatePassword(lineTwo.substring("PASS ".length(), lineTwo.length()));
-
+		    	final Maybe<UserName> username = Maybe.just(new UserName(lineOne.substring("USER ".length(), lineOne.length())));
+		    	final Maybe<Password> password = Maybe.just(new Password(lineTwo.substring("PASS ".length(), lineTwo.length())));
 				try {
 					return Server.register(username.force(), password.force());
 				} catch (NothingException e) {
@@ -215,21 +235,30 @@ public final class RequestProcessor extends Thread {
 		 * @throws IOException If the user hangs up unexpectedly.
 		 */
 		private static Maybe<Stored<User>> handleLogin(final BufferedReader in) throws IOException {
-
 			final String lineOne = Util.getLine(in);
 		    final String lineTwo = Util.getLine(in);
 		    if (lineOne.startsWith("USER ") && lineTwo.startsWith("PASS ")) {
-		    	final Maybe<String> username = Server.validateUsername(lineOne.substring("USER ".length(), lineOne.length()));
-		    	final Maybe<String> password = Server.validatePassword(lineTwo.substring("PASS ".length(), lineTwo.length()));
+		    	final Maybe<UserName> username = Maybe.just(new UserName(lineOne.substring("USER ".length(), lineOne.length())));
+		    	final Maybe<Password> password = Maybe.just(new Password(lineTwo.substring("PASS ".length(), lineTwo.length())));
 
 				try {
-			    	System.err.println("Login request from user: " + username.force());
-					return Server.authenticate(username.force(), password.force());
+			    	System.err.println("Login request from user: " + username.force().getUserName());
+					return Server.authenticate(username.force().getUserName(), password.force().getPassword());
+				} catch (NothingException e) {
+					return Maybe.nothing();
+				}
+			} else if(lineOne.startsWith("USER ") && lineTwo.startsWith("TOKEN "))  {
+				final Maybe<UserName> username = Maybe.just(new UserName(lineOne.substring("USER ".length(), lineOne.length())));
+				final Maybe<Token> token = Maybe.just(new Token(lineTwo.substring("TOKEN ".length(), lineTwo.length())));
+
+				try {
+					System.err.println("Login request from user: " + username.force().getUserName());
+					return Server.authenticate(username.force().getUserName(), token.force());
 				} catch (NothingException e) {
 					return Maybe.nothing();
 				}
 			} else {
-				return Maybe.nothing();
+		    	return Maybe.nothing();
 			}
 		}
 	}

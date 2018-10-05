@@ -129,7 +129,7 @@ Goal: The current implementation stores the user data in memory, so that
 no state is kept when the server resets. When this exercise is
 done, the user data should be securely stored in a SQLite database.
 
-Write a new class called inf226.DataBaseUserStorage which implements KeyedStorage<UserName,User>.
+Write a new class called DataBaseUserStorage which implements KeyedStorage<UserName,User>.
 
 This class should store the values in a SQLite data base, and take care to avoid SQL injection
 by using prepared statements:

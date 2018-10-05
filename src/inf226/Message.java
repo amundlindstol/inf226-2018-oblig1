@@ -1,5 +1,8 @@
 package inf226;
 
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Whitelist;
+
 public class Message {
 	public final String sender, recipient, message;
 	
@@ -12,8 +15,14 @@ public class Message {
 	}
 
 	public static boolean valid(String message) {
-		// TODO: Implement message string validation.
-		return false;
+		char[] messsageChar = message.toCharArray();
+		for (char c: messsageChar) {
+			if (Character.isISOControl(c) && c != '\n') {
+				return false;
+			} else if (c == '.') { //TODO: fix
+			}
+		}
+		return message.equals(Jsoup.clean(message, Whitelist.basic()));
 	}
 
 	public static class Invalid extends Exception {

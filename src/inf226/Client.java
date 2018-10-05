@@ -2,6 +2,8 @@ package inf226;
 
 import inf226.Maybe.NothingException;
 
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -21,20 +23,27 @@ import java.util.TreeMap;
 public class Client {
 	private static final int portNumber = 1337;
 	static final BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));
+	private static String lastUser = "";
+	private static String lastToken = "";
 
 	public static void main(String[] args) {
+		System.setProperty("javax.net.ssl.trustStore", "keystore.pfx");
 		final String hostname = (args.length<1)?"localhost":args[0];
 		System.out.println("Welcome to assignment 1.");
 		System.out.println("This is the client program which will allow you to register users,");
 		System.out.println("request and validate session IDs.");
 		System.out.println();
-		try (final Socket socket = new Socket(hostname,portNumber);
-			 final BufferedReader serverIn
+		SSLSocketFactory socketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+		//try (final SSLSocket socket = (SSLSocket) socketFactory.createSocket(hostname, portNumber);
+		//try (final Socket socket = new Socket(hostname, portNumber);
+        try (final SSLSocket socket = new SecureSSLSocket(portNumber, hostname).createClientSocket();
+             final BufferedReader serverIn
 			   = new BufferedReader
 			   ( new InputStreamReader
 			   ( socket.getInputStream()));
-		 	final BufferedWriter serverOut 
+             final BufferedWriter serverOut
 			   = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()))) {
+			System.out.println(socket.getSession().getCipherSuite());
 			System.out.println("Connected to server. What do you want to do?");
 			mainMenu(serverIn, serverOut);
 		} catch (IOException e) {
@@ -80,6 +89,8 @@ public class Client {
 					System.out.println("Ask you TA.");
 			}
 			if(option == 1) { // LOGIN
+				if (!(lastUser.equals("") && lastToken.equals("")))
+
 				System.out.print("Username: ");
 				final String username = Util.getLine(stdin);
 				System.out.print("Password: ");
@@ -96,6 +107,7 @@ public class Client {
 			if(option == 3) // QUIT
 				return;
 		} catch (IOException e) {
+			e.printStackTrace();
 			System.err.println("Bye-bye!");
 		}
 	}
@@ -139,7 +151,18 @@ public class Client {
 					readMessages(serverOut,serverIn);
 				}
 				if(option == 2) { // SEND
-					// TODO: Implement message sending
+                    System.out.print("To: ");
+                    final String recipient = Util.getLine(stdin);
+                    System.out.print("Message:\n");
+                    final String message = Util.getLine(stdin);
+                    /*String msg = "";
+                    while (true) {
+                    	String next = stdin.readLine();
+                    	msg += next +"\n";
+                    	if (next.equals(""))
+                    		break;
+					}*/
+					sendMessage(recipient, message, serverOut, serverIn);
 				}
 				if(option == 3) // QUIT
 					return;
@@ -187,16 +210,40 @@ public class Client {
 	         ( final BufferedWriter serverOut,
 	           final BufferedReader serverIn,
 	           final String username,
-	           final String password ) throws IOException { 
+	           final String password) throws IOException {
 		serverOut.write("LOGIN"); serverOut.newLine();
 		serverOut.write("USER " + username); serverOut.newLine();
-		serverOut.write("PASS " + password); serverOut.newLine();
+		if (!lastToken.equals("")) {
+			serverOut.write("TOKEN " + password); serverOut.newLine();
+		} else {
+			serverOut.write("PASS " + password); serverOut.newLine();
+		}
 		serverOut.flush();
 		final String response = Util.getLine(serverIn);
 		if (response.startsWith("LOGGED IN ")) {
+			lastUser = username;
+			serverOut.write("REQUEST TOKEN"); serverOut.newLine();
+			serverOut.flush();
+			final String tokenResponse = Util.getLine(serverIn);
+			if (tokenResponse.startsWith("TOKEN "))
+				lastToken = tokenResponse.substring("TOKEN ".length(), tokenResponse.length());
 			userMenu(serverOut,serverIn);
 		}
+
 	}
+
+    private static void sendMessage(String recipient, String message, BufferedWriter serverOut, BufferedReader serverIn) throws IOException {
+        serverOut.write("SEND MESSAGE"); serverOut.newLine();
+        serverOut.write("RECIPIENT " + recipient); serverOut.newLine();
+        serverOut.write("MESSAGE " + message); serverOut.newLine();
+		//serverOut.write("TOKEN " + lastToken); serverOut.newLine();
+        serverOut.flush();
+        final String response = Util.getLine(serverIn);
+        if (response.startsWith("MESSAGE SENT")) {
+            System.out.println("Message was sent");
+            userMenu(serverOut, serverIn);
+        }
+    }
 
 	/**
 	 * Read messages from the server and display one of them to the user.

@@ -1,7 +1,6 @@
 package inf226.Storage;
 
 import inf226.Maybe;
-import inf226.Maybe.NothingException;
 
 import java.util.TreeMap;
 import java.util.function.Function;
@@ -74,7 +73,7 @@ public class TransientStorage<K,C> implements KeyedStorage<K,C> {
 			System.err.println("Key not in store" + key.toString());
 		try {
 			return lookup(id.force());
-		} catch (NothingException e) {
+		} catch (Maybe.NothingException e) {
 			return Maybe.nothing();
 		}
 	}

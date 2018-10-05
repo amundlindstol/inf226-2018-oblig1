@@ -1,7 +1,5 @@
 package inf226;
 
-import inf226.Maybe.NothingException;
-
 import java.util.Iterator;
 
 /**
@@ -55,7 +53,7 @@ public class ImmutableLinkedList<T> implements Iterable<T> {
 				final U elem = list.getHead().force();
 				list = list.getTail().force();
 				return elem;
-			} catch (NothingException e) {
+			} catch (Maybe.NothingException e) {
 				return null;
 			}
 		}
