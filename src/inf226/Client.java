@@ -4,11 +4,7 @@ import inf226.Maybe.NothingException;
 
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.TreeMap;
@@ -25,17 +21,15 @@ public class Client {
 	static final BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));
 	private static String lastUser = "";
 	private static String lastToken = "";
+    private static String hostname;
 
 	public static void main(String[] args) {
 		System.setProperty("javax.net.ssl.trustStore", "keystore.pfx");
-		final String hostname = (args.length<1)?"localhost":args[0];
+		hostname = (args.length<1)?"localhost":args[0];
 		System.out.println("Welcome to assignment 1.");
 		System.out.println("This is the client program which will allow you to register users,");
 		System.out.println("request and validate session IDs.");
 		System.out.println();
-		SSLSocketFactory socketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
-		//try (final SSLSocket socket = (SSLSocket) socketFactory.createSocket(hostname, portNumber);
-		//try (final Socket socket = new Socket(hostname, portNumber);
         try (final SSLSocket socket = new SecureSSLSocket(portNumber, hostname).createClientSocket();
              final BufferedReader serverIn
 			   = new BufferedReader
@@ -43,7 +37,6 @@ public class Client {
 			   ( socket.getInputStream()));
              final BufferedWriter serverOut
 			   = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()))) {
-			//System.out.println(socket.getSession().getCipherSuite());
 			System.out.println("Connected to server. What do you want to do?");
 			mainMenu(serverIn, serverOut);
 		} catch (IOException e) {
@@ -154,7 +147,6 @@ public class Client {
                     System.out.print("To: ");
                     final String recipient = Util.getLine(stdin);
                     System.out.print("Message:\n");
-                    //final String message = Util.getLine(stdin);
                     String message = "";
                     while (true) {
                     	String next = stdin.readLine();
@@ -165,10 +157,21 @@ public class Client {
 					sendMessage(recipient, message, serverOut, serverIn);
 				}
 				if(option == 3) // QUIT
-
 					return;
-			} catch (IOException e) {
-				System.err.println("Bye-bye!");
+            } catch (IOException e) {
+                if (!(e instanceof EOFException))
+				    System.err.println("Bye-bye!");
+                System.err.println("Disconnected, trying to reconnect...");
+                if (e instanceof EOFException) {
+                    while (true){
+                        SSLSocket socket = new SecureSSLSocket(portNumber, hostname).createClientSocket();
+                        if (socket != null) {
+                            reconnect(socket);
+                            return;
+                        }
+                        try { Thread.sleep(1000); } catch (InterruptedException e1) { e1.printStackTrace(); }
+                    }
+                }
 			}
 		}
 	}
@@ -311,6 +314,21 @@ public class Client {
 		System.out.println("Message from: " + sender);
 		System.out.println(senderMessages.get(messageSelection));
 	}
+
+	private static void reconnect(SSLSocket socket) {
+        System.err.println("Trying to reconnect..");
+        try (final BufferedReader serverIn
+                     = new BufferedReader
+                     ( new InputStreamReader
+                             ( socket.getInputStream()));
+             final BufferedWriter serverOut
+                     = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()))) {
+            login(serverOut,serverIn,lastUser,lastToken);
+        } catch (IOException e) {
+            System.err.println("Connection error");
+            e.printStackTrace();
+        }
+    }
 
 	private static String unescape(final String messageLine) {
 		if(isEscapedMessage(messageLine))

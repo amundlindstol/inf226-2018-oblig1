@@ -41,7 +41,7 @@ public class SecureSSLSocket {
             sslContext = SSLContext.getInstance("TLSv1.2");
             sslContext.init(keyManagerFactory.getKeyManagers(), tmf.getTrustManagers(), new SecureRandom());
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println(e.getCause().toString());
         }
     }
 
@@ -69,7 +69,7 @@ public class SecureSSLSocket {
             SSLServerSocket sslServerSocket = (SSLServerSocket)sslServerSocketfactory.createServerSocket(port);
             return sslServerSocket;
         } catch(Exception exp) {
-            exp.printStackTrace();
+            System.err.println("Failed to create socket");
         }
         return null; //TODO dont return null
     }
@@ -87,7 +87,7 @@ public class SecureSSLSocket {
             SSLSocketFactory sslsocketfactory = sslContext.getSocketFactory();
             return (SSLSocket)sslsocketfactory.createSocket(strServerName, port);
         } catch(Exception exp) {
-            exp.printStackTrace();
+            System.err.println("Failed to create socket");
         }
         return null; //TODO dont return null
     }
