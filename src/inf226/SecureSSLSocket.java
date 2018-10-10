@@ -20,13 +20,7 @@ public class SecureSSLSocket {
         this.port = port;
         try {
             Security.addProvider(new Provider());
-
-            //Specifying the Keystore details
-            //System.setProperty("javax.net.ssl.keyStore","keystore.pfx");
-            //truststore
-            //System.setProperty("javax.net.ssl.trustStore", "keystore.pfx");
             System.setProperty("javax.net.ssl.keyStorePassword","password");
-
 
             KeyStore keyStore = KeyStore.getInstance("PKCS12");
             FileInputStream is = new FileInputStream("keystore.pfx");
@@ -52,18 +46,10 @@ public class SecureSSLSocket {
 
         //Specifying the Keystore details
         System.setProperty("javax.net.ssl.keyStore","keystore.pfx");
-        //truststore
         System.setProperty("javax.net.ssl.trustStore", "keystore.pfx");
         System.setProperty("javax.net.ssl.keyStorePassword","password");
 
-        // Enable debugging to view the handshake and communication which happens between the SSLClient and the SSLServer
-        // System.setProperty("javax.net.debug","all");
-        //keystore
-        //keymanagerfactory -> keymanager
-        //keymanager -> SSLContext.init(keymng, trustmanager/0, new secure random/0)
-
         try {
-
             // Initialize the Server Socket
             SSLServerSocketFactory sslServerSocketfactory = sslContext.getServerSocketFactory();
             SSLServerSocket sslServerSocket = (SSLServerSocket)sslServerSocketfactory.createServerSocket(port);

@@ -16,10 +16,6 @@ public class DataBaseUserStorage implements KeyedStorage<String, User> {
                 {public String apply(User u)
                 {return u.getName();}});
 
-//    private static final KeyedStorage<String,Version> storagee
-//            = new TransientStorage<String,Version>
-//            (u -> u.id.toString());
-
     private final String delete = "DELETE FROM Users WHERE UserName=?";
     private final String lookup = "SELECT UserName, HashedPwd FROM users WHERE UserName = ?";
     private final String lookupLog = "SELECT log FROM logs WHERE reciever = ?";
