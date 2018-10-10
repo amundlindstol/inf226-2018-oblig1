@@ -199,7 +199,14 @@ public final class RequestProcessor extends Thread {
 		 */
 		private static Maybe<Message> handleMessage(String username, BufferedReader in) throws IOException {
 			final String recipient = Util.getLine(in);
-			final String message = Util.getLine(in);
+			//final String message = in.readLine();
+			String mess, message = "";
+			while ((mess = in.readLine()) != null) {
+				if (mess.isEmpty()) {
+					break;
+				}
+				message += mess + "\n";
+			}
 			if (recipient.startsWith("RECIPIENT ") && message.startsWith("MESSAGE ")) {
 				String r = recipient.substring("RECIPIENT ".length(), recipient.length());
 				String m = message.substring("MESSAGE ".length(), message.length());

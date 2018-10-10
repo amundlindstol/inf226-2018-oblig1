@@ -154,17 +154,18 @@ public class Client {
                     System.out.print("To: ");
                     final String recipient = Util.getLine(stdin);
                     System.out.print("Message:\n");
-                    final String message = Util.getLine(stdin);
-                    /*String msg = "";
+                    //final String message = Util.getLine(stdin);
+                    String message = "";
                     while (true) {
                     	String next = stdin.readLine();
-                    	msg += next +"\n";
-                    	if (next.equals(""))
-                    		break;
-					}*/
+                    	if (next.equals("."))
+							break;
+                    	message += next +"\n";
+					}
 					sendMessage(recipient, message, serverOut, serverIn);
 				}
 				if(option == 3) // QUIT
+
 					return;
 			} catch (IOException e) {
 				System.err.println("Bye-bye!");
