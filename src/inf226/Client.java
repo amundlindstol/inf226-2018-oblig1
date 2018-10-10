@@ -43,7 +43,7 @@ public class Client {
 			   ( socket.getInputStream()));
              final BufferedWriter serverOut
 			   = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()))) {
-			System.out.println(socket.getSession().getCipherSuite());
+			//System.out.println(socket.getSession().getCipherSuite());
 			System.out.println("Connected to server. What do you want to do?");
 			mainMenu(serverIn, serverOut);
 		} catch (IOException e) {
@@ -89,7 +89,7 @@ public class Client {
 					System.out.println("Ask you TA.");
 			}
 			if(option == 1) { // LOGIN
-				if (!(lastUser.equals("") && lastToken.equals("")))
+//				if (!(lastUser.equals("") && lastToken.equals("")))
 
 				System.out.print("Username: ");
 				final String username = Util.getLine(stdin);

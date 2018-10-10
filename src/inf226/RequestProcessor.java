@@ -21,7 +21,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 public final class RequestProcessor extends Thread {
 	private final BlockingQueue<Request> queue;
-	private HashMap<String, Integer> requestMap = new HashMap<>();
+
 
 	public RequestProcessor() {
 		queue = new LinkedBlockingQueue<Request>();
@@ -40,20 +40,7 @@ public final class RequestProcessor extends Thread {
 		try {
 			while(true) {
 				final Request request = queue.take();
-
-				System.out.println(String.valueOf(request.client));
-				if (requestMap.containsKey(String.valueOf(request.client))) {
-					requestMap.replace(String.valueOf(request.client), requestMap.get(request.client)+1);
-				} else {
-					requestMap.put(String.valueOf(request.client), 1);
-				}
-
-
-				/*
-				 * TODO: Implement mitigation against a flood
-				 * of requests from a single host by keeping
-				 * track of the number of requests per host.
-				 */
+				//mitigation against flood is implemented in request.run
 				request.start();
 			}
 		} catch (InterruptedException e) { 
@@ -68,6 +55,7 @@ public final class RequestProcessor extends Thread {
 	public static final class Request extends Thread{
 		private final Socket client;
 		private Maybe<Stored<User>> user;
+		private HashMap<Socket, Integer> requestMap = new HashMap<>();
 		
 		/**
 		 * Create a new request from a socket connection to a client.
@@ -85,7 +73,27 @@ public final class RequestProcessor extends Thread {
 		            new BufferedWriter(new OutputStreamWriter(client.getOutputStream()));
 		        final BufferedReader in = new BufferedReader(
 		            new InputStreamReader(client.getInputStream()))) {
+				float time, timeOld = System.currentTimeMillis() / 1000;
 		    	while(true) {
+					if (requestMap.containsKey(client)) {
+						requestMap.replace(client, requestMap.get(client)+1);
+					} else {
+						requestMap.put(client, 1);
+					}
+					time = System.currentTimeMillis() / 1000;
+					if (time > timeOld+2 && requestMap.get(client) > 0) {
+						requestMap.replace(client, requestMap.get(client)-1);
+						timeOld = System.currentTimeMillis() / 1000;
+					}
+
+					if (requestMap.get(client) > 10) {
+						try {
+							System.err.println("Too many requests from: " + client.toString() + "\nclosing connection...");
+							this.client.close();
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+					}
 		    		handle(in,out);
 		    	}
 		    } catch (IOException e) {

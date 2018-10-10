@@ -22,6 +22,13 @@ public final class User {
 		this.hashed = hashPass(pw);
 	}
 	public User(final UserName name, final Password pw, final Token token) {
+		if (token == null) {
+			this.name=name;
+			this.token = new Token();
+			this.log = new ImmutableLinkedList<Message>();
+			this.hashed = pw;
+			return;
+		}
 		this.name=name;
 		this.token = token;
 		this.log = new ImmutableLinkedList<Message>();

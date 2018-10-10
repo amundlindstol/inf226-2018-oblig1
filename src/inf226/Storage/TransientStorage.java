@@ -1,6 +1,7 @@
 package inf226.Storage;
 
 import inf226.Maybe;
+import inf226.User;
 
 import java.util.TreeMap;
 import java.util.function.Function;

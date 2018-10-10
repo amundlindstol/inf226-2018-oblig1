@@ -1,6 +1,7 @@
 package inf226.Storage;
 
 import inf226.Maybe;
+import inf226.User;
 
 /**
  * This interface is for storages where one can lookup values by keys.

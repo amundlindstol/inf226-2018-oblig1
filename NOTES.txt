@@ -5,4 +5,5 @@
     but made it in one to speed up the coding process
 * token is only used to automatically login again if server restarts
     although i haven't setup a database to test this feature
-*
+* Storage does not prevent users from creating same-named accounts, which is bad
+* DataBaseUserStorage not fully working and is therefore partially left out of my Server-code
